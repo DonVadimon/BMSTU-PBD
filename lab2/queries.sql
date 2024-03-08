@@ -94,7 +94,7 @@ end;
 $$ LANGUAGE plpgsql;
 -- select dividing_by_zero(4, 2);
 -- select dividing_by_zero(4, 0);
-= -- Продемонстрировать в функциях и процедурах работу условных операторов и выполнение динамического запроса.
+-- Продемонстрировать в функциях и процедурах работу условных операторов и выполнение динамического запроса.
 -- БЫЛО!
 -- рекурсивный
 WITH RECURSIVE r AS (
@@ -110,6 +110,44 @@ WITH RECURSIVE r AS (
 )
 SELECT *
 FROM r;
+DROP TABLE IF EXISTS directory CASCADE;
+CREATE TABLE IF NOT EXISTS directory (
+	id int not null primary key,
+	parent_id int references directory(id),
+	name varchar(1000)
+);
+INSERT INTO directory (id, parent_id, name)
+VALUES (1, null, '/var'),
+	(2, 1, '/var/lib'),
+	(3, 1, '/var/node'),
+	(4, 2, '/var/lib/qwe'),
+	(5, 4, '/var/lib/qwe/asd'),
+	(6, 4, '/var/lib/qwe/zxc'),
+	(7, 5, '/var/lib/qwe/asd/seven'),
+	(8, 5, '/var/lib/qwe/asd/eight'),
+	(9, 6, '/var/lib/qwe/zxc/nine');
+create or replace function get_dir_content(dir_id int default 1) RETURNS table (
+		id int,
+		parent_id int,
+		name varchar(1000)
+	) language sql as $$ WITH RECURSIVE r AS (
+		SELECT id,
+			parent_id,
+			name
+		FROM directory
+		WHERE parent_id = dir_id
+		UNION
+		SELECT directory.id,
+			directory.parent_id,
+			directory.name
+		FROM directory
+			JOIN r ON directory.parent_id = r.id
+	)
+SELECT *
+FROM r;
+$$;
+select *
+from get_dir_content();
 -- LIMIT
 select *
 from regular_user
@@ -222,4 +260,4 @@ END LOOP;
 CLOSE dir_cursor;
 END;
 $BODY$;
-select read_directory('/var/lib')
+select read_directory('//var/lib')
