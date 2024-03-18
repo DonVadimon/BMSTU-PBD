@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  cassandra:
+    image: cassandra
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - ${DB_PATH}:/var/lib/cassandra
