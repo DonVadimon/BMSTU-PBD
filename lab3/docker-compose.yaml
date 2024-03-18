@@ -7,3 +7,4 @@ services:
       - ${DB_PORT}:${DB_PORT}
     volumes:
       - ${DB_PATH}:/var/lib/cassandra
+      - ./init/:/vadim/init/
