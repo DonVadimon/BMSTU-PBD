@@ -102,7 +102,7 @@ select code, AVG(length) from lab3.api_resp group by code;
 
 -- матеиализированное представление
 
-// materialized_views_enabled: true - тока с вольюмом на /var/lib/cassandra/cassandra.yml
+// materialized_views_enabled: true str1646 - тока с вольюмом на /var/lib/cassandra/cassandra.yml
 CREATE MATERIALIZED VIEW IF NOT EXISTS view_ids_ok as
 select code, id from lab3.api_resp where id is not null and code = '2XX'
 PRIMARY KEY (id);
