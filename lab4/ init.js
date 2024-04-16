@@ -242,7 +242,7 @@ db.users.aggregate([
     {
         $group: {
             _id: "$age",
-            count: { $count: {} },
+            count: { $sum: 1 },
         },
     },
 ]);
@@ -257,6 +257,10 @@ db.users.find().explain();
 
 // добавление элемента в массив
 db.chat.updateOne({ _id: 1 }, { $push: { tags: "new" } });
+db.chat.find({ _id: 1 });
+
+// удаление элемента из массива
+db.chat.updateOne({ _id: 1 }, { $pull: { tags: "new" } });
 db.chat.find({ _id: 1 });
 
 db.users.insertMany([
@@ -277,7 +281,8 @@ db.users.insertMany([
 db.users.find({ name: "Duplicate" });
 
 // Удаление дубликатов по имени
-db.users.aggregate([
+db.users
+    .aggregate([
         {
             $group: {
                 _id: { name: "$name" },
@@ -290,7 +295,8 @@ db.users.aggregate([
                 count: { $gt: 1 },
             },
         },
-    ]).forEach(function (doc) {
+    ])
+    .forEach(function (doc) {
         doc.dups.shift();
         db.users.deleteOne({
             _id: { $in: doc.dups },
@@ -298,3 +304,26 @@ db.users.aggregate([
     });
 
 db.users.find({ name: "Duplicate" });
+
+// 1) Список, кто раб в Майл
+db.users.find({ "about.work": { $eq: "Mail.ru" } });
+
+// 2) Кол персон старше 21
+db.users.find({ age: { $gt: 21 } }).count();
+
+// 3) Сооб от Васи (Павла)
+db.chatMessage.aggregate([
+    {
+        $lookup: {
+            from: "users",
+            localField: "authorId",
+            foreignField: "_id",
+            as: "author",
+        },
+    },
+    {
+        $match: {
+            "author.name": "Vadim",
+        },
+    },
+]);
