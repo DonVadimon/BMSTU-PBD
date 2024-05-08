@@ -152,7 +152,14 @@ MATCH (u:user) RETURN toUpper(u.username)
 CREATE INDEX user_is_male_index FOR (u:user) ON (u.is_male)
 
 // Ограничение уникальности свойства
-CREATE CONSTRAINT username_unique FOR (u:user) REQUIRE u.usernmae IS UNIQUE
+CREATE CONSTRAINT username_unique FOR (u:user) REQUIRE u.username IS UNIQUE
+// Тут бахнер еррор тк такой уже есть
+create (u:user{
+  id: 1,
+  username: '1username',
+  password: 'password1',
+  is_male: true
+})
 
 // SELECT
 MATCH (u:user)-[r]->(c:chat) RETURN u, c
@@ -180,3 +187,15 @@ MATCH (node:label1:label2) DELETE node
 
 // Вывести пользователей, у которых обозначено включение в чат, в названии которошл упоминается "chat"
 MATCH (u:user)-[m:Membership]->(c:chat) WHERE m.member IS NOT NULL and c.title =~ '.*chat.*' RETURN u, c
+
+// 1. Вывести чаты, где больше 1 пользователя
+MATCH (c:chat)<-[:Membership{member:true}]-(u:user)
+WITH c, collect(u{.username}) AS members
+WHERE size(members) > 1
+RETURN c{.title, members: members}
+
+// 2. Вывести пользователей мужского пола, которые участвуют в > 1 чате
+MATCH (u:user)-[:Membership{member:true}]->(c:chat)
+WITH u, collect(c{.title}) AS chats
+WHERE size(chats) > 1
+RETURN u{.username,chats:chats}
