@@ -1,3 +1,6 @@
 .DS_Store
 .vscode
 database
+lab6/volumes/*.xml
+!example.xml
+!html.xml
