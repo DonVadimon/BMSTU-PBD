@@ -76,6 +76,7 @@ copy (
         )
     from chat
 ) to '/volumes/join.xml';
+-- //div[@class="Constructor-PartList"]//div[@class="ConstructorForm-TopicDesc"]/u/text()
 SELECT xmlparse(DOCUMENT pg_read_file('/volumes/example.xml'));
 -- exist
 SELECT xpath_exists(
