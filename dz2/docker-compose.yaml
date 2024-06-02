@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  db:
+    container_name: pbd_rz2_db
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PWD}
+    volumes:
+      - ${DB_PATH}:/var/lib/postgresql/data
+      # - ./init/:/docker-entrypoint-initdb.d/
+    ports:
+      - 5433:5432
